@@ -1,7 +1,13 @@
 #!/bin/bash
+#!/bin/bash
+#SBATCH --job-name=cellranger            # Job name
+#SBATCH --ntasks=1                    # Number of tasks (1 task with multiple cores)
+#SBATCH --cpus-per-task=20            # Number of CPU cores per task
+#SBATCH --mem=256G                    # Memory per node
+#SBATCH --time=48:00:00               # Time limit hrs:min:sec (adjust as needed)
+
 
 cd /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60
-
 
 # add cellranger
 export PATH=/media/XLStorage/hbao2/SCRNA/cellranger-8.0.1:$PATH
@@ -11,14 +17,14 @@ TRANSCRIPTOME_DIR=/media/XLStorage/hbao2/SCRNA/Ref/FCA_6.60/FCA660_Cellranger801
 
 # Run Cell Ranger count for each sample and echo "finish" upon completion
 
-cellranger count --id=Female_Ctrl_B \
---sample=24252-01-01-01-01 \
---fastqs=$FASTQS_DIR \
---transcriptome=$TRANSCRIPTOME_DIR \
---include-introns true \
---create-bam true \
---localcores 20 
-echo "Finished Female_Ctrl_B"
+# cellranger count --id=Female_Ctrl_B \
+# --sample=24252-01-01-01-01 \
+# --fastqs=$FASTQS_DIR \
+# --transcriptome=$TRANSCRIPTOME_DIR \
+# --include-introns true \
+# --create-bam true \
+# --localcores 20 
+# echo "Finished Female_Ctrl_B"
 
 cellranger count --id=Female_Host_B \
 --sample=24252-01-02-01-01 \
@@ -29,23 +35,23 @@ cellranger count --id=Female_Host_B \
 --localcores 20 
 echo "Finished Female_Host_B"
 
-cellranger count --id=Male_Ctrl_B \
---sample=24252-01-03-01-01 \
---fastqs=$FASTQS_DIR \
---transcriptome=$TRANSCRIPTOME_DIR \
---include-introns true \
---create-bam true \
---localcores 20 
-echo "Finished Male_Ctrl_B"
+# cellranger count --id=Male_Ctrl_B \
+# --sample=24252-01-03-01-01 \
+# --fastqs=$FASTQS_DIR \
+# --transcriptome=$TRANSCRIPTOME_DIR \
+# --include-introns true \
+# --create-bam true \
+# --localcores 20 
+# echo "Finished Male_Ctrl_B"
 
-cellranger count --id=Male_Host_B \
---sample=24252-01-04-01-01 \
---fastqs=$FASTQS_DIR \
---transcriptome=$TRANSCRIPTOME_DIR \
---include-introns true \
---create-bam true \
---localcores 20 
-echo "Finished Male_Host_B"
+# cellranger count --id=Male_Host_B \
+# --sample=24252-01-04-01-01 \
+# --fastqs=$FASTQS_DIR \
+# --transcriptome=$TRANSCRIPTOME_DIR \
+# --include-introns true \
+# --create-bam true \
+# --localcores 20 
+# echo "Finished Male_Host_B"
 
 # file transfer
 # rsync -av --exclude='*.bam' --exclude='*.bai' /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Ctrl_B/ denglab@129.81.246.29:/mnt/DATA/RNAseq/SCRNA/cellranger_output/20241020_6.60_All/Female_Ctrl_B/
@@ -76,18 +82,33 @@ echo "Finished Male_Host_B"
 
 
 # # mCD8GFP on positive 
-# # GAL4 on positive 
+# # GAL4 on negtive 
+# # GAL80ts on positive
 # ###################################################################
-# # check the +/- for mCD8GFP
-# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "mCD8GFP" \
+# # # check the +/- for mCD8GFP
+# # samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.31/Female_Host_B/outs/possorted_genome_bam.bam "mCD8GFP" \
 # | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
-# # plus: 308334 minus: 12171
+# # # 6.60 : plus: 308334 minus: 12171
+# # # 6.31  plus: 69975 minus: 32549
+# # # 6.60 : plus: 69530 minus: 32564
 
-# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL4" \
+
+# # GAL80ts
+# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL80ts" \
 # | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
-# # plus: 52122 minus: 6149
+# # # plus: 52122 minus: 6149
 
-# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "EGFP" \
+# # GAL4 -
+
+# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.31/Female_Host_B/outs/possorted_genome_bam.bam "GAL4" \
+# | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+# # plus: 69530 minus: 32564
+# # 6.60 : plus: 9550 minus: 21822
+# # 6.31 : plus: 9444 minus: 21806
+
+
+# # EGFP nothing
+# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL80ts" \
 # | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
 
 # # gene LDH on negtive  3L:6,259,105..6,262,694 [-]
