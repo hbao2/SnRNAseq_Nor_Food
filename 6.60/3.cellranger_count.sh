@@ -85,31 +85,35 @@ echo "Finished Female_Host_B"
 # # GAL4 on negtive 
 # # GAL80ts on positive
 # ###################################################################
-# # # check the +/- for mCD8GFP
-# # samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.31/Female_Host_B/outs/possorted_genome_bam.bam "mCD8GFP" \
-# | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
-# # # 6.60 : plus: 308334 minus: 12171
-# # # 6.31  plus: 69975 minus: 32549
-# # # 6.60 : plus: 69530 minus: 32564
+# # check the +/- for mCD8GFP
+samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.31/Female_Host_B/outs/possorted_genome_bam.bam "mCD8GFP" \
+| awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "mCD8GFP" \
+| awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+# # 6.60 : plus: 308334 minus: 12171
+# # 6.31  plus: 69975 minus: 32549
+# # 6.60 : plus: 69530 minus: 32564
 
 
-# # GAL80ts
-# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL80ts" \
-# | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
-# # # plus: 52122 minus: 6149
+# # GAL80ts +
+samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL80ts" \
+| awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+# # none
 
 # # GAL4 -
 
-# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.31/Female_Host_B/outs/possorted_genome_bam.bam "GAL4" \
-# | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.31/Female_Host_B/outs/possorted_genome_bam.bam "GAL4" \
+| awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL4" \
+| awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
 # # plus: 69530 minus: 32564
-# # 6.60 : plus: 9550 minus: 21822
-# # 6.31 : plus: 9444 minus: 21806
+# # 6.31+ : plus: 9444 minus: 21806
+# # 6.60- : plus: 52122 minus: 6149
 
 
 # # EGFP nothing
-# samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL80ts" \
-# | awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
+samtools view /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/Female_Host_B/outs/possorted_genome_bam.bam "GAL80ts" \
+| awk '{if ($2 == 16) {minus++} else if ($2 == 0) {plus++}} END {print "plus:", plus, "minus:", minus}'
 
 # # gene LDH on negtive  3L:6,259,105..6,262,694 [-]
 # samtools view -c -F 0x10 possorted_genome_bam.bam 3L:6259105-6262694  # positive 40563
@@ -132,5 +136,60 @@ echo "Finished Female_Host_B"
 # # bulk read length = 100 
 # samtools view TM-1_S10Aligned.sortedByCoord.out.bam | awk '{print length($10)}'
 # ###################################################################
+
+
+# check in adata mCD8GFP counts
+```python
+# Check if mCD8GFP exists in .var (genes/features)
+if "mCD8GFP" in adata.var_names:
+    # Filter cells where 'sample' column in .obs is 'F_host'
+    f_host_adata = adata[adata.obs['sample'] == 'F_Host']
+    
+    # Get the index of mCD8GFP in .var
+    index = f_host_adata.var_names.get_loc("mCD8GFP")
+    
+    # Sum counts across all filtered cells for mCD8GFP
+    total_counts = f_host_adata.X[:, index].sum()
+    print(f"Total counts for mCD8GFP in F_Host: {total_counts}")
+else:
+    print("mCD8GFP not found in the .var names.")
+
+```
+
+
+```python
+# Check if GAL4 exists in .var (genes/features)
+if "GAL4" in adata.var_names:
+    # Filter cells where 'sample' column in .obs is 'F_host'
+    f_host_adata = adata[adata.obs['sample'] == 'F_Host']
+    
+    # Get the index of GAL4 in .var
+    index = f_host_adata.var_names.get_loc("GAL4")
+    
+    # Sum counts across all filtered cells for GAL4
+    total_counts = f_host_adata.X[:, index].sum()
+    print(f"Total counts for GAL4 in F_Host: {total_counts}")
+else:
+    print("GAL4 not found in the .var names.")
+
+
+
+# check sequence before gal4
+
+cd /media/XLStorage/hbao2/SCRNA/Cellranger_output_20241020_6.60/
+samtools view Female_Host_B/outs/possorted_genome_bam.bam "GAL4" > GAL4_reads.sam
+samtools fastq GAL4_reads.sam > GAL4_reads.fastq
+
+samtools view -b Female_Host_B/outs/possorted_genome_bam.bam "GAL4" > GAL4_reads.bam
+samtools fastq GAL4_reads.bam > GAL4_reads.fastq
+
+samtools view -f 4 Female_Host_B/outs/possorted_genome_bam.bam > unmapped_reads.sam
+samtools fastq unmapped_reads.sam > unmapped_reads.fastq
+cat GAL4_reads.fastq unmapped_reads.fastq > combined_reads.fastq
+fastqc combined_reads.fastq -o qc_output/
+trimmomatic SE -phred33 combined_reads.fastq cleaned_combined_reads.fastq SLIDINGWINDOW:4:20 MINLEN:50
+
+
+
 
 
